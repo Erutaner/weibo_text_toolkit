@@ -1,0 +1,12 @@
+# created by virtualenv automatically
+# Ignore virtualenv directory
+venv/
+
+# Ignore PyCharm configuration directory
+.idea/
+
+# Ignore Python cache files and directories
+__pycache__/
+*.pyc
+
+# Other files or directories to ignore...

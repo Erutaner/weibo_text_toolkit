@@ -9,9 +9,9 @@ from weibo_visualize import count_over_days
 from weibo_visualize import auto_polarization_visualize
 import plotly.graph_objects as go
 
-# weight_path = r"C:\Users\29032\daily_coding\大创\hugging_face_learning\torch_model\CoSENT_Weibo_Multi_BiLSTM_Cls_New_Data"
-#
-# model = ErnieWeiboSentiment(weight_path=weight_path)
+weight_path = r"C:\Users\29032\daily_coding\大创\hugging_face_learning\torch_model\CoSENT_Weibo_Multi_BiLSTM_Cls_New_Data"
+
+model = ErnieWeiboSentiment(weight_path=weight_path)
 model = ErnieWeiboEmbeddingSemantics()
 #
 # df = pd.read_csv(r"D:\桌面\武大本科期间文件\大创\系统建设\系统\数据清洗\数据\首次测试_鼠头鸭脖\鼠头鸭脖.csv")

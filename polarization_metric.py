@@ -5,7 +5,12 @@ Date: 2023.08.13
 import numpy as np
 
 def compute_discrepancy(embedding_list, cosine_kmeans):
-
+    '''
+    簇内间加权余弦极化指数计算
+    :param embedding_list: 句嵌入后得到的embedding_list
+    :param cosine_kmeans: cosine-kmeans对象，见ml_algorithms.py
+    :return: 返回离散程度的度量值，在0和1之间
+    '''
     embedding_list = embedding_list / np.linalg.norm(embedding_list, axis=1, keepdims=True)
     G = cosine_kmeans.n_clusters
     labels = cosine_kmeans.labels_
@@ -36,7 +41,12 @@ def compute_discrepancy(embedding_list, cosine_kmeans):
     return discrepancy
 
 def compute_entropy(embedding_list, cosine_kmeans):
-
+    '''
+        归一化熵测度计算
+        :param embedding_list: 句嵌入后得到的embedding_list
+        :param cosine_kmeans: cosine-kmeans对象，见ml_algorithms.py
+        :return: 返回离散程度的度量值，在0和1之间
+        '''
     labels = cosine_kmeans.labels_
     G = cosine_kmeans.n_clusters
 

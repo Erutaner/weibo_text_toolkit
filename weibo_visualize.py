@@ -14,7 +14,7 @@ from sklearn.cluster import MiniBatchKMeans
 from kneed import KneeLocator
 import numpy as np
 from ml_algorithms import CosineKMeans
-
+from polarization_metric import compute_entropy, compute_discrepancy
 
 def pie_chart(df,values = "count", names = "sentiment", title = "情感分布",return_dict=False):
     '''
@@ -33,7 +33,7 @@ def pie_chart(df,values = "count", names = "sentiment", title = "情感分布",r
 
 def count_over_days(df,time_column = "时间", title = "Count over Time",return_dict = False):
     '''
-    绘制舆情热度变化曲线
+    绘制舆情热度变化曲线，time_column和title指定存储时间的列和图的标题
     可以直接传入数据清洗完成后的dataframe，传入储存时间数据的列名和图表的题目
     return_dict为True时，返回一个json格式的字符串，需要用json.dump转化为json格式
     '''
@@ -300,7 +300,28 @@ def auto_polarization_over_time_visualize(text_list, embedding_list, dates, titl
         return json_data
 
 
-def polar_degree_over_time(embedding_list, date_series, title="Polarization Over Time", return_dict=False):
+def kneedle_cosine_kmeans(embedding_list,start = 1, end = 11):
+    '''
+    :param embedding_list: 传入句嵌入后得到的embedding_list
+    :param start: 传入搜参的聚类数起始值
+    :param end: 传入搜参的聚类数结束值
+    '''
+    x = range(start,end+1)
+    y = []
+    for k in x:
+        kmeans = CosineKMeans(n_clusters = k)
+        kmeans.fit(embedding_list)
+        y.append(kmeans.inertia_)
+    kn = KneeLocator(x,y,curve = "convex",direction = "decreasing",interp_method = "polynomial")
+    best_k = kn.knee if kn.knee is not None else 4
+
+    # 使用k-means进行聚类
+    kmeans = CosineKMeans(n_clusters=best_k)
+    kmeans.fit(embedding_list)
+    return kmeans
+
+
+def polar_degree_over_time(embedding_list, date_series, metric = compute_discrepancy, title="Polarization Over Time", return_dict=False):
     '''
     :param embedding_list: 为嵌入后的numpy二维矩阵（ndarray），可通过本项目模型得到
     :param date_series: 与embedding_list顺序相同的dataframe的日期列，经过clean_weibo_comment_data进行数据清洗后直接传入时间列
@@ -334,7 +355,7 @@ def polar_degree_over_time(embedding_list, date_series, title="Polarization Over
         kmeans = kneedle_cosine_kmeans(current_embeddings)
 
         # 计算该日期的极化度量值
-        discrepancy_value = compute_entropy(current_embeddings, kmeans)
+        discrepancy_value = metric(current_embeddings, kmeans)
         polarization_values.append(discrepancy_value)
 
     # 将结果保存到一个DataFrame中

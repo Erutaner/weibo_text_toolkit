@@ -11,11 +11,11 @@ import requests
 class searsh(object):
     ip_queue = queue.Queue() #放ip的队列
     num=0
-    word_list = ['疫情放开']
+    word_list = ['鼠头鸭脖']
     num_list= queue.Queue()
     url_list=[]
-    csv_list = []#用于存放当前关键词的csv所存放的起始时间和数据
-    aip_list='http://route.xiongmaodaili.com/xiongmao-web/api'
+    csv_list = []  #用于存放当前关键词的csv所存放的起始时间和数据
+    aip_list= "http://route.xiongmaodaili.com/xiongmao-web/api/glip?secret=205bc27cd70ea3d4d83b5b40a2291331&orderNo=GL202308161848285WAHxfM4&count=10&isTxt=1&proxyType=1"
     lock = threading.Lock()
     def __init__(self,cookies):
         self.cookies = cookies
@@ -42,7 +42,7 @@ class searsh(object):
 
         print(res)
         for i in res:
-            self.ip_queue.put({"https":'https://'+i})
+            self.ip_queue.put({"https":i})
         print('当前ip',self.ip_queue.qsize())
 
 
@@ -65,7 +65,7 @@ class searsh(object):
             try:
                 # url='https://www.baidu.com'
                 # print(self.cookies)
-                res = requests.get(url=url, headers=headers, timeout=10, proxies=ip, cookies=self.cookies)
+                res = requests.get(url=url, headers=headers, timeout=10, cookies=self.cookies,proxies=ip)
                 if 'Sina Visitor System' in res.text or '����ͨ��֤' in res.text:
                     sleep(120)
                     print('请在txt中更新cookie')
@@ -172,23 +172,25 @@ class searsh(object):
                 bid = li.xpath('.//div[@class="from"]/a/@href')[0].split('?')[0].split('/')[4]  # 文章mid
                 sork = 0
                 pos = ''
-                #while sork<=3:
-                #    try:
-                #        url = f"https://weibo.com/ajax/statuses/show?id={bid}&locale=zh-CN"
-                #        res = self.request_url(url,ip)
-                #        data = res['res'].json()
-                #        date = str(self.changeDate(data['created_at']))
-                #        ip = res['ip']
-                #        try:
-                #            pos = data['region_name'].split(' ')[1]
-                #            # ip = res['ip']
-                #        except:
-                #            break
-                #        break
-                #    except:
-                #        sork+=1
-                #        ip = self.getIp()
-                #        continue
+                ## 如果不爬ip属地请把这一块注释掉
+                while sork<=3:
+                   try:
+                       url = f"https://weibo.com/ajax/statuses/show?id={bid}&locale=zh-CN"
+                       res = self.request_url(url,ip)
+                       data = res['res'].json()
+                       date = str(self.changeDate(data['created_at']))
+                       ip = res['ip']
+                       try:
+                           pos = data['region_name'].split(' ')[1]
+                           # ip = res['ip']
+                       except:
+                           break
+                       break
+                   except:
+                       sork+=1
+                       ip = self.getIp()
+                       continue
+                ##
                 self.lock.acquire()
                 file = self.judge_time_return_csv(date)
                 file.writerow([name,date,cont,tran,comm,like,pos])
@@ -233,28 +235,30 @@ class searsh(object):
         current_time = start_time
         data = []
         while current_time < end_time:
-            f = open('疫情放开//'+word + str(current_time).replace(':', '-') + '.csv', 'a', newline='', encoding='utf-8-sig')
+            f = open('鼠头鸭脖//'+word + str(current_time).replace(':', '-') + '.csv', 'a', newline='', encoding='utf-8-sig')
             f = csv.writer(f)
             f.writerow(['用户名','时间','微博正文','转发数','评论数','点赞数','ip'])
             data.append( {
                 'start_time': current_time,
-                'end_time': current_time + timedelta(hours=24),
+                'end_time': current_time + timedelta(hours=4),
                 'csv_name': f
             })
-            current_time += timedelta(hours=24)
+            current_time += timedelta(hours=4)
         return data
     #返回该微博时间所处的时间段的微博所进行存储的csv
     def judge_time_return_csv(self,time):
         t = time
-        time  =datetime.strptime(t, "%Y-%m-%d %H:%M:%S")
+        time = datetime.strptime(t, "%Y-%m-%d %H:%M:%S")
         # print(self.csv_list)
         for d in self.csv_list:
             if d['start_time']<=time<=d['end_time']:
                 break
+        # 返回的是一个文件对象
         return d['csv_name']
     #开启线程
     def start(self,name):
-        flag = 20
+        # 线程数量设置
+        flag = 5
         threads = []
         for i in range(flag):
             t = threading.Thread(target=self.main, args=(name,))
@@ -268,9 +272,9 @@ class searsh(object):
         global writer
         self.getIp_list()
         for word in self.word_list:
-            self.url_list = self.time_list('2022-12-1 0', '2023-8-1 0')
-            start = datetime.strptime('2022-12-01 00:00:00', "%Y-%m-%d %H:%M:%S")  # 开始时间
-            end =  datetime.strptime('2023-08-01 00:00:00', "%Y-%m-%d %H:%M:%S")  # 结束时间
+            self.url_list = self.time_list('2023-6-3 0', '2023-6-4 16')
+            start = datetime.strptime('2023-06-03 00:00:00', "%Y-%m-%d %H:%M:%S")  # 开始时间
+            end =  datetime.strptime('2023-06-04 16:00:00', "%Y-%m-%d %H:%M:%S")  # 结束时间
             self.csv_list = self.split_time(start,end,word)
             for a in range(len(self.url_list)):
                 self.num_list.put(a)
@@ -284,12 +288,12 @@ if __name__=='__main__':
         "cookie": a
     }
     s = searsh(cookies)
-    isExists = os.path.exists('疫情放开')
+    isExists = os.path.exists('鼠头鸭脖')
     # 判断结果
     if not isExists:  # 查看是否有数据这个文件夹
         # 如果不存在则创建目录
         # 创建目录操作函数
-        os.makedirs('疫情放开')
+        os.makedirs('鼠头鸭脖')
     s.start_p()
 
 

@@ -234,3 +234,6 @@ cosine_kmeans = kneedle_cosine_kmeans(embedding_list) # 返回的是一个cosine
 如果只想要正性、负性、中性三个类别，那么只需要将后四个类别进行合并即可
 
 数据存储在test_data.csv和tran_data.csv中
+
+## Visualization System
+[![Public opinion analysis and polarization visualization](https://res.cloudinary.com/marcomontalbano/image/upload/v1735610268/video_to_markdown/images/google-drive--1lujZCD1pVjYVl-BEarEAQzLdL6zFWJTw-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://drive.google.com/file/d/1lujZCD1pVjYVl-BEarEAQzLdL6zFWJTw/view?usp=sharing "Public opinion analysis and polarization visualization")
